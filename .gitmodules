@@ -1,0 +1,9 @@
+[submodule "vco-roc"]
+	path = vco-roc
+	url = git@github.com:msolefonte/vco-roc.git
+[submodule "vco-framework"]
+	path = vco-framework
+	url = git@github.com:msolefonte/vco-framework.git
+[submodule "vco"]
+	path = vco
+	url = git@github.com:msolefonte/vco.git
