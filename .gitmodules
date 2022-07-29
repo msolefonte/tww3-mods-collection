@@ -7,3 +7,6 @@
 [submodule "vco"]
 	path = vco
 	url = git@github.com:msolefonte/vco.git
+[submodule "tww3-chaos-confederation"]
+	path = tww3-chaos-confederation
+	url = https://github.com/msolefonte/tww3-chaos-confederation
