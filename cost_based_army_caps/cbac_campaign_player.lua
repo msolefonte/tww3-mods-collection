@@ -32,74 +32,59 @@ local function enforce_faction_cost_limit(faction)
 end
 
 local function set_tooltip_text_army_cost(character) -- TODO Refactor
-  local lord_rank = character:rank()
-  local limit_rank = cbac:get_config("limit_rank")
-  local limit_step = cbac:get_config("limit_step")
-  local limit_deceleration = cbac:get_config("limit_deceleration")
+  local lord_rank = character:rank();
+
+  local limit_rank = cbac:get_config("limit_rank");
+  local limit_step = cbac:get_config("limit_step");
+  local limit_deceleration = cbac:get_config("limit_deceleration");
   local next_limit_increase = limit_step - ((math.floor(lord_rank/limit_rank)) * limit_deceleration)
   if next_limit_increase < 0 then next_limit_increase = 0 end
-  local army_cost = get_army_cost(character)
-  local hero_count = get_army_hero_count(character)
-  local army_queued_units_cost = get_army_queued_units_cost()
-  local this_army_cost_limit
-  local supply_factor = get_army_supply_factor(character, 0)
+
+  local army_cost = cbac:get_army_cost(character);
+  local army_queue_cost = cbac:get_army_queued_units_cost();
+  local army_limit = cbac:get_army_limit(character);
+  local hero_count = cbac:get_army_hero_count(character);
+  local supply_factor = cbac:get_army_supply_factor(character, 0);
+
   local zoom_component = find_uicomponent(core:get_ui_root(), "main_units_panel", "button_focus")
   if not zoom_component then
-    return
-  end
-  local tooltip_text = ""
-
-  if character:faction():is_human() then
-    this_army_cost_limit = cbac:get_config("army_limit_player")
-  else
-    this_army_cost_limit = cbac:get_config("army_limit_ai")
-  end
-  if (cbac:get_config("dynamic_limit")) then
-    local total_deceleration_factor = 0
-    local number_of_steps = (math.floor(lord_rank/limit_rank)) - 1
-    local step = 1
-    while step <= number_of_steps do
-      if (limit_deceleration*step <= limit_step) then
-        total_deceleration_factor = total_deceleration_factor + (limit_deceleration*step)
-      else
-        total_deceleration_factor = total_deceleration_factor + limit_step
-      end
-      step = step + 1
-    end
-    this_army_cost_limit = this_army_cost_limit + ((math.floor(lord_rank/limit_rank))*limit_step) - total_deceleration_factor
+    return;
   end
 
   --Apply cost total of this army as tooltip text of the zoom button of the army
-  tooltip_text = "Army current point cost: "..army_cost.." (Limit: "..this_army_cost_limit..")"
+  local tooltip_text = "Army current point cost: " .. army_cost .. " (Limit: " .. army_limit .. ")";
   if army_queued_units_cost > 0 then
-    tooltip_text = tooltip_text.."\nProjected point cost after recruitment: "..(army_cost+army_queued_units_cost)
+    tooltip_text = tooltip_text .. "\nProjected point cost after recruitment: " .. (army_cost + army_queued_units_cost);
   end
   tooltip_text = tooltip_text..(get_character_cost_string(character))
   if (cbac:get_config("dynamic_limit")) then
-    tooltip_text = tooltip_text.."\nLimit rises every "..limit_rank.." lord levels. Next increase: " ..next_limit_increase
+    tooltip_text = tooltip_text .. "\nLimit rises every " .. limit_rank .. " lord levels. Next increase: " .. next_limit_increase;
   end
-  if (army_cost+army_queued_units_cost) > this_army_cost_limit then
-    tooltip_text = "[[col:red]]"..tooltip_text.."[[/col]]"
+  if (army_cost+army_queued_units_cost) > army_limit then
+    tooltip_text = "[[col:red]]" .. tooltip_text .. "[[/col]]";
   end
   if character:faction():is_human() and (hero_count) > cbac:get_config("hero_cap") then
-    tooltip_text = tooltip_text.."\n[[col:red]]".."This army has too many heroes in it!".."[[/col]]"
+    tooltip_text = tooltip_text .. "\n[[col:red]]" .. "This army has too many heroes in it!" .. "[[/col]]"
   end
+
   local subculture = character:faction():subculture()
   if character:faction():is_human() and (cbac:get_config("supply_lines")) then
+    -- TODO HARDCODED
     if (subculture == "wh_dlc03_sc_bst_beastmen" or subculture == "wh_main_sc_brt_bretonnia" or subculture == "wh2_dlc09_sc_tmb_tomb_kings" or subculture == "wh_main_sc_chs_chaos" or character:faction():name() == "wh2_dlc13_lzd_spirits_of_the_jungle") then
-      tooltip_text = tooltip_text.."\nThis faction does not use Supply Lines"
+      tooltip_text = tooltip_text .. "\nThis faction does not use Supply Lines";
     else
       if character:character_subtype("wh2_main_def_black_ark") then
-        tooltip_text = tooltip_text.."\nBlack Arks do not contribute to the Supply Lines penalty"
+        tooltip_text = tooltip_text .. "\nBlack Arks do not contribute to the Supply Lines penalty";
       else
-        tooltip_text = tooltip_text.."\nArmy contributes at "..(supply_factor*100).."% to Supply Lines"
+        tooltip_text = tooltip_text .. "\nArmy contributes at " .. (supply_factor * 100) .. "% to Supply Lines";
         if army_queued_units_cost > 0 then
-          local supply_with_queued = get_army_supply_factor(character, army_queued_units_cost)
-          tooltip_text = tooltip_text.." (will be "..(supply_with_queued*100).."%)"
+          local supply_with_queued = get_army_supply_factor(character, army_queued_units_cost);
+          tooltip_text = tooltip_text .. " (will be " .. (supply_with_queued * 100) .. "%)";
         end
       end
     end
   end
+
   zoom_component:SetTooltipText(tooltip_text, true)
 end
 

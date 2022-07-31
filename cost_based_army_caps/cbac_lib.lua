@@ -55,7 +55,8 @@ function cbac:block_mct_settings_if_required()
   end
 end
 
-function cbac:get_unit_cost(unit) -- TODO Remove Hardcode
+function cbac:get_unit_cost(unit)
+  -- TODO HARDCODED
   if unit:unit_key() == "wh_dlc07_brt_cha_green_knight_0" then
     return 0;
   else
@@ -63,7 +64,8 @@ function cbac:get_unit_cost(unit) -- TODO Remove Hardcode
   end
 end
 
-function cbac:get_hero_count(unit) -- TODO Remove Hardcode
+function cbac:get_hero_count(unit)
+  -- TODO HARDCODED
   if string.find(current_unit:unit_key(), "_cha_") or (current_unit:unit_key() == "wh2_dlc11_cst_inf_count_noctilus_0") or (current_unit:unit_key() == "wh2_dlc11_cst_inf_count_noctilus_1") then
     if not (current_unit:unit_key() == "wh_dlc07_brt_cha_green_knight_0" or current_unit:unit_key() == "wh_dlc06_dwf_cha_master_engineer_ghost_0" or current_unit:unit_key() == "wh_dlc06_dwf_cha_runesmith_ghost_0" or current_unit:unit_key() == "wh_dlc06_dwf_cha_thane_ghost_0" or current_unit:unit_key() == "wh_dlc06_dwf_cha_thane_ghost_1") then
       return 1;
@@ -87,7 +89,12 @@ function cbac:get_army_cost(character)
 end
 
 function cbac:get_army_limit(character)
-  local army_limit = cbac:get_config("army_limit_player");
+  local army_limit;
+  if character:faction():is_human() then
+    army_limit = cbac:get_config("army_limit_player");
+  else
+    army_limit = cbac:get_config("army_limit_ai");
+  end
 
   if (cbac:get_config("dynamic_limit")) then
     local lord_rank = character:rank();
@@ -160,7 +167,7 @@ function cbac:get_character_cost_string(character)
   return character_cost_string;
 end
 
-function cbac:get_garrison_cost(cqi)  -- TODO Refactor
+function cbac:get_garrison_cost(cqi)
   local garrison_cost = 0;
   for _, unit in ipairs(cm:get_military_force_by_cqi(cqi):unit_list()) do
     garrison_cost = garrison_cost + cbac:get_unit_cost(unit);
