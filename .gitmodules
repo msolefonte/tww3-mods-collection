@@ -10,3 +10,9 @@
 [submodule "tww3-chaos-confederation"]
 	path = tww3-chaos-confederation
 	url = https://github.com/msolefonte/tww3-chaos-confederation
+[submodule "tww3-btbh"]
+	path = tww3-btbh
+	url = git@github.com:msolefonte/tww3-btbh.git
+[submodule "tww3-cbac"]
+	path = tww3-cbac
+	url = git@github.com:msolefonte/tww3-cbac.git
